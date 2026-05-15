@@ -1,43 +1,78 @@
-# Sentimental Analysis of E-Consultancy Comments
+﻿# Sentimental Analysis of E-Consultancy Comments
 
+A modern full-stack sentiment analysis solution for e-consultancy feedback and customer comment datasets.
 
-- **MySQL-backed dataset storage** — every uploaded CSV is saved to MySQL and is reusable
-- **Dataset Library** in the sidebar — pick any past dataset, click Analyze, done
-- **External data ingestion** — ETL scripts / external APIs push data via `/api/datasets/ingest`; new datasets appear in the UI automatically via 30-second polling
-- **Zero NLP changes** — `nlp_engine.py` is byte-for-byte identical to v2
-- **UI fixes** — dropdowns now show text correctly (solid background), chart labels visible, Groq API key column removed from SetupPage
-- **Cached results** — analysis results stored in DB; re-fetch without re-running
+This repository combines a FastAPI backend, a React + Vite frontend, and an NLP pipeline to upload, store, analyze, and visualize sentiment from CSV feedback data.
+
+## What this project does
+
+- Accepts CSV file uploads through the frontend
+- Saves uploaded datasets in MySQL for reuse
+- Detects text, policy, section, and date columns automatically
+- Runs sentiment analysis on stored datasets
+- Caches analysis results in the database
+- Displays KPI dashboards and word clouds for feedback insights
+- Supports external ingestion via API for ETL or automated data pipelines
+
+## Key features
+
+- MySQL-backed dataset storage
+- Reusable dataset library in the sidebar
+- Dataset preview and metadata
+- Cached analysis results for faster repeated views
+- Word cloud generation from processed feedback text
+- External ingest endpoint for ETL pipelines
 
 ---
 
 ## Folder structure
 
 ```
-sentiment_v3/
+.
+├── .gitignore
+├── README.md
+├── README_NEW.md
 ├── backend/
-│   ├── app/
-│   │   ├── main.py                  ← Updated: adds /api/datasets, DB init on startup
-│   │   ├── nlp_engine.py            ← UNCHANGED from v2
-│   │   ├── db/
-│   │   │   └── database.py          ← MySQL async engine (aiomysql + SQLAlchemy)
-│   │   ├── models/
-│   │   │   └── dataset.py           ← ORM: datasets + analysis_results tables
-│   │   ├── services/
-│   │   │   └── dataset_service.py   ← All DB operations (CRUD, DataFrame conversion)
-│   │   └── routers/
-│   │       ├── upload.py            ← UNCHANGED
-│   │       ├── analysis.py          ← UNCHANGED
-│   │       ├── wordcloud.py         ← UNCHANGED
-│   │       └── datasets.py          ← NEW: full dataset lifecycle API
-│   └── requirements.txt             ← Added: sqlalchemy, aiomysql, cryptography
-└── frontend/
-    └── src/
-        ├── App.jsx                  ← Updated: DB flow, dataset library state, polling
-        ├── api.js                   ← Updated: uploadAndStore(), listDatasets(), analyzeDataset()
-        ├── components/
-        │   └── Sidebar.jsx          ← Updated: Dataset Library panel, fixed dropdowns
-        └── pages/
-            └── SetupPage.jsx        ← Updated: removed API key column, fixed select styles
+│   ├── .env                     ← local environment file, do not commit
+│   ├── requirements.txt
+│   └── app/
+│       ├── __init__.py
+│       ├── main.py
+│       ├── nlp_engine.py
+│       ├── db/
+│       │   └── database.py
+│       ├── models/
+│       │   ├── __init__.py
+│       │   └── dataset.py
+│       ├── routers/
+│       │   ├── __init__.py
+│       │   ├── analysis.py
+│       │   ├── datasets.py
+│       │   ├── upload.py
+│       │   └── wordcloud.py
+│       └── services/
+│           └── dataset_service.py
+├── etl_example.py
+├── frontend/
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── vite.config.js
+│   └── src/
+│       ├── api.js
+│       ├── App.jsx
+│       ├── index.css
+│       ├── main.jsx
+│       ├── components/
+│       │   ├── FeedbackStrip.jsx
+│       │   ├── FloatingBot.jsx
+│       │   ├── KpiCard.jsx
+│       │   └── Sidebar.jsx
+│       └── pages/
+│           ├── Dashboard.jsx
+│           ├── SetupPage.jsx
+│           └── WelcomeScreen.jsx
+└── sample_feedback.csv
 ```
 
 ---
@@ -210,9 +245,3 @@ operation regardless of total dataset size.
 
 ---
 
-## UI fixes applied
-
-1. **Dropdown text invisible** — `select` elements now use `background: #1e293b` (solid dark) instead of `rgba(255,255,255,0.06)` (transparent). All `<option>` elements explicitly set the same background so browser-native dropdowns render correctly on all OS themes.
-2. **Chart label visibility** — `SENT_COLORS` tooltip and legend text explicitly set to `#e2e8f0`.
-3. **API key column removed** — SetupPage now shows 4 columns (Policy, Section, Comment, Date). The Groq API key is handled entirely server-side via environment variable. A green info bar confirms this.
-4. **Gen-AI Settings section removed from sidebar** — replaced by the Dataset Library panel.
