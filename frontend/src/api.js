@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE = '/api'
+const BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 export const api = {
   // ── Original endpoints (unchanged) ─────────────────────────────────────────
